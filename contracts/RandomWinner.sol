@@ -45,6 +45,12 @@ contract RandomWinner is VRFConsumerBaseV2 {
         uint256 requestId
     );
 
+    event RandomWordRequested(
+        uint256 indexed gameId,
+        uint256 requestId,
+        uint256 time
+    );
+
     constructor(
         address _vrfCoordinatorAddress,
         bytes32 _keyHash,
@@ -105,7 +111,9 @@ contract RandomWinner is VRFConsumerBaseV2 {
         players.push(msg.sender);
 
         if (players.length == max_players) {
-            requestRandomWords();
+            uint256 requestId = requestRandomWords();
+
+            emit RandomWordRequested(gameId, requestId, block.timestamp);
         }
 
         emit PlayerJoined(gameId, msg.sender, block.timestamp);
@@ -129,7 +137,7 @@ contract RandomWinner is VRFConsumerBaseV2 {
         address randomWinner = players[randomIndex];
         gameStarted = false;
 
-        console.log(_randomWords[0], randomWinner);
+        console.log(randomWinner, randomIndex);
         emit GameEnded(gameId, randomWinner, max_players, _requestId);
     }
 
