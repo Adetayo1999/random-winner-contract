@@ -8,8 +8,9 @@ const deployRandomWinnerGame: DeployFunction = async ({
   deployments,
   network,
   ethers,
+  run,
 }: HardhatRuntimeEnvironment) => {
-  const { deploy } = deployments;
+  const { deploy, log } = deployments;
   const [deployer] = await ethers.getSigners();
 
   let args: any[];
@@ -45,6 +46,30 @@ const deployRandomWinnerGame: DeployFunction = async ({
       RandomWinner.address
     );
     await addConsumerTx.wait();
+  } else {
+    const args = [
+      "0x7a1bac17ccc5b313516c5e16fb24f7659aa5ebed",
+      "0x4b09e658ed251bcafeebbc69400383d49f344ace09b9576fe248bb02c003fe9f",
+      "100000",
+      "5486",
+    ];
+
+    const RandomWinner = await deploy("RandomWinner", {
+      from: deployer.address,
+      args,
+      log: true,
+      waitConfirmations: 5,
+    });
+
+    log(
+      `**************** Verifying ${RandomWinner.address} on ${network.name} ********************`
+    );
+
+    // verify contract
+    await run("verify:verify", {
+      constructorArguments: args,
+      address: RandomWinner.address,
+    });
   }
 };
 

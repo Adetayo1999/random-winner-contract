@@ -13,6 +13,7 @@ error RandomWinner__InvalidEntryFee();
 error RandomWinner__InvalidMaxPlayers();
 error RandomWinner__NoGameInProgress();
 error RandomWinner__MaxPlayersCompleted();
+error RandomWinner__WinnerPayoutFailed();
 
 contract RandomWinner is VRFConsumerBaseV2 {
     bytes32 immutable keyHash;
@@ -137,6 +138,14 @@ contract RandomWinner is VRFConsumerBaseV2 {
         address randomWinner = players[randomIndex];
         gameStarted = false;
 
+        (bool success, ) = payable(randomWinner).call{
+            value: address(this).balance
+        }("");
+
+        if (!success) {
+            revert RandomWinner__WinnerPayoutFailed();
+        }
+
         console.log(randomWinner, randomIndex);
         emit GameEnded(gameId, randomWinner, max_players, _requestId);
     }
@@ -155,5 +164,12 @@ contract RandomWinner is VRFConsumerBaseV2 {
 
     function getGameId() external view returns (uint256) {
         return gameId;
+    }
+
+    function resetGame() external {
+        delete players;
+        gameStarted = false;
+        entryFee = 0;
+        max_players = 0;
     }
 }
