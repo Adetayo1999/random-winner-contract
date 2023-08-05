@@ -159,4 +159,23 @@ describe("Random Winner Contract", () => {
       });
     });
   });
+
+  describe("resetGame tests", () => {
+    it("resets the state of the game", async () => {
+      const startGameTx = await RandomWinnerGame.startGame(10000, 5);
+      await startGameTx.wait();
+
+      const resetGameTx = await RandomWinnerGame.resetGame();
+      await resetGameTx.wait();
+      const players = await RandomWinnerGame.getPlayers();
+      const gameStatus = await RandomWinnerGame.getGameStatus();
+      const entryFee = await RandomWinnerGame.getEntryFee();
+      const maxPlayers = await RandomWinnerGame.getMaxPlayers();
+
+      expect(players.length).to.equal(0);
+      expect(gameStatus).to.be.false;
+      expect(entryFee.toString()).to.equal("0");
+      expect(maxPlayers.toString()).to.equal("0");
+    });
+  });
 });

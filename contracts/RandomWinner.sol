@@ -146,7 +146,6 @@ contract RandomWinner is VRFConsumerBaseV2 {
             revert RandomWinner__WinnerPayoutFailed();
         }
 
-        console.log(randomWinner, randomIndex);
         emit GameEnded(gameId, randomWinner, max_players, _requestId);
     }
 
@@ -164,6 +163,14 @@ contract RandomWinner is VRFConsumerBaseV2 {
 
     function getGameId() external view returns (uint256) {
         return gameId;
+    }
+
+    function getPlayers() external view returns (address[] memory) {
+        return players;
+    }
+
+    function getMaxPlayers() external view returns (uint256) {
+        return max_players;
     }
 
     function resetGame() external {
